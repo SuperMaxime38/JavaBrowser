@@ -9,6 +9,8 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.web.WebEngine;
@@ -36,7 +38,10 @@ public class Main extends Application {
         primaryStage.setTitle("JavaBrowser");
         primaryStage.show();
     }
+    
 
+    boolean doesShowHistory = false;
+    
     private void createNewTab(String url) {
         Tab tab = new Tab("Nouvel Onglet");
         WebView webView = new WebView();
@@ -44,7 +49,17 @@ public class Main extends Application {
         TextField urlField = new TextField(url);
         Button backButton = new Button("←");
         Button forwardButton = new Button("→");
+        
+        // ##### HISTORY #####
         ListView<String> historyList = new ListView<>();
+        Button showHistoryButton = new Button();
+        ImageView historyButtonIcon = new ImageView(new Image(getClass().getResourceAsStream("/history.png")));
+        historyButtonIcon.setFitWidth(24);
+        historyButtonIcon.setFitHeight(24);
+        // Configuration du bouton
+        showHistoryButton.setGraphic(historyButtonIcon);
+		historyList.setVisible(doesShowHistory);
+		// ###################
         
         // Download button
         DownloadManager downloadManager = new DownloadManager();
@@ -124,11 +139,26 @@ public class Main extends Application {
 
 
         // Interface de l'onglet
-        HBox navBar = new HBox(5, backButton, forwardButton, urlField, downloadManager.getDownloadButton());
+        HBox navBar = new HBox(5, backButton, forwardButton, urlField, downloadManager.getDownloadButton(), showHistoryButton);
         BorderPane tabContent = new BorderPane();
         tabContent.setTop(navBar);
         tabContent.setCenter(webView);
-        tabContent.setRight(historyList);
+        if(doesShowHistory) tabContent.setRight(historyList);
+        
+        
+
+        
+		// Afficher l'historique
+		showHistoryButton.setOnAction(_ -> {
+			doesShowHistory = !doesShowHistory;
+			historyList.setVisible(doesShowHistory);
+			if(!doesShowHistory) {
+				tabContent.setRight(null);
+			} else {
+				tabContent.setRight(historyList);
+			}
+		});
+        
         tab.setContent(tabContent);
         tab.setClosable(true);
 
